@@ -111,6 +111,7 @@ class Planche {
 		for ($i=0;$i<$this->params["colonnes"];$i++) {
 			for ($j=0;$j<$this->params["lignes"];$j++) {
 				list($x,$y) = $this->et_origine($i,$j);
+				$y += $this->params["marge_haut_interieur"]; // petite tolérance pour pas être sur le bord
 				$x += $marge;
 				foreach ($this->source_donnees->lignes($this->params['lmax']) as $ligne) {
 					$txt = $this->doc->createElement("text",$ligne);

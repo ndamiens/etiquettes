@@ -15,14 +15,15 @@ if (!isset($_SESSION['params'])) {
 		"fichier" => null,
 		"template" => "",
 		"marge_hautbas" => 4,
-		"debug" => 0
+		"debug" => 0,
+		"marge_haut_interieur" => 1
 	);
 }
 
 if (isset($_POST['action'])) {
 	switch ($_POST['action']) {
 		case 'param':
-			$keys = array("width","height","colonnes","lignes","lmax","taille_police","marge","interligne","template","marge_hautbas","debug");
+			$keys = array("width","height","colonnes","lignes","lmax","taille_police","marge","interligne","template","marge_hautbas","debug","marge_haut_interieur");
 			foreach ($keys as $k) $_SESSION['params'][$k] = $_POST[$k];
 			page();
 			break;
@@ -91,6 +92,7 @@ function page() {
 		<label>Hauteur d'une ligne : <input type="text" name="interligne" value="<?php echo $_SESSION['params']['interligne']; ?>"/>mm</label><br/>
 		<label>Marge gauche intérieur : <input type="text" name="marge" value="<?php echo $_SESSION['params']['marge']; ?>"/> mm</label><br/>
 		<label>Marge haut/bas : <input type="text" name="marge_hautbas" value="<?php echo $_SESSION['params']['marge_hautbas']; ?>"/> mm</label><br/>
+		<label>Marge haute intérieur : <input type="text" name="marge_haut_interieur" value="<?php echo $_SESSION['params']['marge_haut_interieur']; ?>"/> mm</label><br/>
 		<label>Afficher le contour des étiquettes : <input type="checkbox" name="debug" value="1" <?php echo ($_SESSION['params']['debug']==1)?'checked':''; ?>/></label><br/>
 		<label>Template :</label><br/>
 		<textarea name="template" style="width:100%; height: 6em;"><?php echo $_SESSION['params']['template']; ?></textarea>
