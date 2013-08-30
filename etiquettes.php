@@ -1,19 +1,15 @@
 <?php
 class Source {
-	public function __construct($fichier) {
+	public $titres;
+
+	public function __construct($fichier, $template='') {
 		$f = fopen($fichier, "r");
 		$this->titres = fgetcsv($f);
+		foreach ($this->titres as $k=>$v) {
+			$this->titres[$k] = $v;
+		}
 		$this->fh = $f;
-		$this->templates_lignes = array(
-			"genre,prénom,nom",
-			"fc,int,fonction",
-			"structure1",
-			"structure2",
-			"structure3",
-			"adresse1",
-			"adresse2",
-			"CP,ville"
-		);
+		$this->templates_lignes = explode("\n", $template);
 	}
 
 	public function lignes($lmax) {
@@ -23,7 +19,7 @@ class Source {
 			$txt = '';
 			$cols = explode(',', $s_cols);
 			foreach ($cols as $c) {
-				$n = array_search($c, $this->titres);
+				$n = array_search(trim($c), $this->titres);
 				if ($n === false)
 					continue;
 				if (empty($data[$n]))
@@ -64,20 +60,25 @@ class Planche {
 
 	public function et_w() {
 		if (!isset($this->et_w))
-			$this->et_w = floor($this->params["width"]/$this->params["colonnes"]);
+			$this->et_w = floor($this->params["width"]/$this->params["colonnes"]*100)/100;
 		return $this->et_w;
 	}
 
 	public function et_h() {
-		if (!isset($this->et_h))
-			$this->et_h = floor($this->params["height"]/$this->params["lignes"]);
+		if (!isset($this->et_h)) {
+			$h = $this->params["height"];
+			if (!empty($this->params["marge_hautbas"])) {
+				$h = $h - ($this->params["marge_hautbas"]*2);
+			}
+			$this->et_h = floor($h/$this->params["lignes"]*100)/100;
+		}
 		return $this->et_h;
 	}
 
 	public function et_origine($i,$j) {
 		return array(
 			$i*$this->et_w(),
-			$j*$this->et_h()
+			$j*$this->et_h()+$this->params["marge_hautbas"]
 		);
 	}
 
@@ -118,7 +119,7 @@ class Planche {
 					$txt->setAttribute("y", "{$y}mm");
 					$txt->setAttribute("width", $this->et_w()."mm");
 					$txt->setAttribute("height", $this->et_h()."mm");
-					$txt->setAttribute("style", "font-size:{$taille_police}mm;font-family:sans-serif;text-overflow:clip;");
+					$txt->setAttribute("style", "font-size:{$taille_police}mm;font-family:sans-serif;");
 					$this->svg->appendChild($txt);
 				}
 			}
@@ -129,8 +130,6 @@ class Planche {
 		$pages = array();
 		$page = 1;
 		$f = tempnam("/tmp/","et_pdf");
-		if ($debug)
-			$this->ajoute_squelette();
 		while (!feof($this->source_donnees->fh)) {
 			$doc = new DOMDocument('1.0', 'utf-8');
 			$doc->formatOutput = true;
@@ -142,6 +141,8 @@ class Planche {
 			$doc->appendChild($svg);
 			$this->svg = $svg;
 			$this->doc = $doc;
+			if ($debug)
+				$this->ajoute_squelette();
 			$this->ajoute_etiquette();
 			file_put_contents("{$f}_xml_{$page}.xml", $this->doc->saveXML());
 			system("inkscape {$f}_xml_{$page}.xml --export-pdf {$f}_xml_{$page}.pdf");
