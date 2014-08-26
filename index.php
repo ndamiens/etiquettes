@@ -72,11 +72,16 @@ function page() {
 	if (file_exists($_SESSION['params']['fichier'])) {
 		$s = new Source($_SESSION['params']['fichier']);
 		echo "titres des colonnes : ";
+		$nb_vide = 0;
 		foreach ($s->titres as $titre_col) {
-			echo "\"$titre_col\" ";
+			if (strlen(trim($titre_col)) == 0)
+				$nb_vide++;
+			echo "$titre_col ";
 		}
 		echo "<br/>";
-
+		if ($nb_vide > 0) {
+			echo "<p style='color:red;'>Attention, il y a $nb_vide colonne(s) sans nom</p>";
+		}
 	}
 	?>
 </fieldset>
