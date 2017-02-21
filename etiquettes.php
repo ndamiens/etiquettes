@@ -21,6 +21,9 @@ class Source {
 	public $titres;
 
 	public function __construct($fichier, $template='') {
+		if (!file_exists($fichier)) {
+			throw new Exception("$fichier introuvable");
+		}
 		$f = fopen($fichier, "r");
 		$this->titres = fgetcsv($f);
 		foreach ($this->titres as $k=>$v) {
